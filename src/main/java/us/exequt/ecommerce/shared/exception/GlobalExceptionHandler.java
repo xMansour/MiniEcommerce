@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -104,6 +105,13 @@ public class GlobalExceptionHandler {
         log.debug(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(RestResponse.error(HttpStatus.NOT_FOUND.value(), request.getRequestURI(), "Mock payment attempt not found", List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<RestResponse<Void>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
+        log.warn("Concurrent modification detected: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(RestResponse.error(HttpStatus.CONFLICT.value(), request.getRequestURI(), "Request conflicts with a concurrent operation, please retry"));
     }
 
     @ExceptionHandler(Exception.class)
