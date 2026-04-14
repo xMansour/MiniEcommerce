@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import us.exequt.ecommerce.cart.CartItemNotFoundException;
 import us.exequt.ecommerce.cart.CartLockedException;
 import us.exequt.ecommerce.cart.CartNotFoundException;
+import us.exequt.ecommerce.cart.IllegalCartStateException;
+import us.exequt.ecommerce.order.IllegalOrderStateException;
+import us.exequt.ecommerce.order.OrderAlreadyCanceledException;
 import us.exequt.ecommerce.order.OrderNotFoundException;
 import us.exequt.ecommerce.shared.RestResponse;
 
@@ -40,6 +43,13 @@ public class GlobalExceptionHandler {
                 .body(RestResponse.error(HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), "Cart is locked for checkout", List.of(ex.getMessage())));
     }
 
+    @ExceptionHandler(IllegalCartStateException.class)
+    public ResponseEntity<RestResponse<Void>> handleIllegalCartStateException(IllegalCartStateException ex, HttpServletRequest request) {
+        log.debug(ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(RestResponse.error(HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), "Illegal cart state", List.of(ex.getMessage())));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RestResponse<Void>> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         log.debug(ex.getMessage(), ex);
@@ -56,6 +66,20 @@ public class GlobalExceptionHandler {
         log.debug(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(RestResponse.error(HttpStatus.NOT_FOUND.value(), request.getRequestURI(), "Order not found", List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(OrderAlreadyCanceledException.class)
+    public ResponseEntity<RestResponse<Void>> handleOrderAlreadyCanceledException(OrderAlreadyCanceledException ex, HttpServletRequest request) {
+        log.debug(ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(RestResponse.error(HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), "Order already canceled", List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(IllegalOrderStateException.class)
+    public ResponseEntity<RestResponse<Void>> handleIllegalOrderStateException(IllegalOrderStateException ex, HttpServletRequest request) {
+        log.debug(ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(RestResponse.error(HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), "Illegal order state", List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(Exception.class)

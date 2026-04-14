@@ -1,6 +1,7 @@
 package us.exequt.ecommerce.order;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import us.exequt.ecommerce.order.dto.CreateOrderRequest;
 import us.exequt.ecommerce.order.dto.OrderResponse;
@@ -11,13 +12,34 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class OrderService implements OrderFacade {
+    private final ApplicationEventPublisher eventPublisher;
     private final OrderRepository orderRepository;
     private final CreateOrderRequestToOrderMapper createOrderRequestToOrderMapper;
     private final OrderToOrderResponseMapper orderToOrderResponseMapper;
 
     @Override
-    public OrderResponse createOrderFromCart(CreateOrderRequest request) {
-        return orderToOrderResponseMapper.apply(orderRepository.save(createOrderRequestToOrderMapper.apply(request)));
+    public void createOrderFromCart(CreateOrderRequest request) {
+        orderToOrderResponseMapper.apply(orderRepository.save(createOrderRequestToOrderMapper.apply(request)));
+    }
+
+    @Override
+    public OrderResponse cancelOrder(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
+
+        if (order.getStatus() == OrderStatus.CANCELED)
+            throw new OrderAlreadyCanceledException("Order with id: " + id + " is already canceled");
+
+        if (!order.getStatus().canTransitionTo(OrderStatus.CANCELED))
+            throw new IllegalOrderStateException("Order with id: " + id + " cannot be canceled from status: " + order.getStatus());
+
+        order.setStatus(OrderStatus.CANCELED);
+        Order savedOrder = orderRepository.save(order);
+        eventPublisher.publishEvent(OrderCancelledEvent.builder()
+                .orderId(savedOrder.getId())
+                .cartId(savedOrder.getCartId())
+                .build());
+        return orderToOrderResponseMapper.apply(savedOrder);
     }
 
     @Override

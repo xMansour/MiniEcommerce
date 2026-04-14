@@ -64,6 +64,19 @@ public class CartService implements CartFacade {
     }
 
     @Override
+    public void unlockCart(UUID cartId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new CartNotFoundException("Cart not found with id: " + cartId));
+
+        if (cart.getStatus().equals(CartStatus.ACTIVE))
+            throw new IllegalCartStateException("Cart with id: " + cartId + " is already active");
+
+        cart.setStatus(CartStatus.ACTIVE);
+        Cart unlockedCart = cartRepository.save(cart);
+        cartEntityToDtoMapper.apply(unlockedCart);
+    }
+
+    @Override
     public CartResponse createCart() {
         return cartEntityToDtoMapper.apply(cartRepository.save(new Cart()));
     }

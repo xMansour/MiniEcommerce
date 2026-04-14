@@ -46,11 +46,11 @@ public class CartController {
     @GetMapping("/{cartId}")
     public ResponseEntity<RestResponse<CartResponse>> getCartById(@PathVariable UUID cartId) {
         CartResponse cart = cartService.getById(cartId);
-        return ResponseEntity.ok(RestResponse.success("Cart retrieved successfully", cart));
+        return ResponseEntity.ok(RestResponse.success("Cart with id: " + cartId + " was retrieved successfully", cart));
     }
 
     @GetMapping
-    public ResponseEntity<RestResponse<Iterable<CartResponse>>> getAllCarts() {
+    public ResponseEntity<RestResponse<List<CartResponse>>> getAllCarts() {
         List<CartResponse> carts = cartService.getAll();
         return ResponseEntity.ok(RestResponse.success("Carts retrieved successfully", carts));
     }

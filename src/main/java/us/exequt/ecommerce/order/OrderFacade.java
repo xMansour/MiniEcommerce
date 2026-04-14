@@ -7,5 +7,6 @@ import us.exequt.ecommerce.shared.base.BaseService;
 import java.util.UUID;
 
 public interface OrderFacade extends BaseService<OrderResponse, UUID> {
-    OrderResponse createOrderFromCart(CreateOrderRequest request);
+    void createOrderFromCart(CreateOrderRequest request);
+        OrderResponse cancelOrder(UUID id);
 }
