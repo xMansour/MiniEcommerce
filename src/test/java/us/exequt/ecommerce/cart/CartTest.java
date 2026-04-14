@@ -1,6 +1,8 @@
 package us.exequt.ecommerce.cart;
 
 import org.junit.jupiter.api.Test;
+import us.exequt.ecommerce.cart.domain.Cart;
+import us.exequt.ecommerce.cart.domain.CartItem;
 
 import java.math.BigDecimal;
 
