@@ -5,3 +5,5 @@ target/
 .kotlin
 
 .idea/
+MiniEcommerce.iml
+.DS_Store

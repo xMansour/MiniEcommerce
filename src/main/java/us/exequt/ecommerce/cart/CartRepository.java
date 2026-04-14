@@ -1,4 +1,8 @@
 package us.exequt.ecommerce.cart;
 
-public class CartRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface CartRepository extends JpaRepository<Cart, UUID> {
 }

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Builder
@@ -14,7 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CartResponse {
-    private UUID id;
-    private List<CartItemResponse> items;
+public class CartItemResponse {
+    private UUID productId;
+    private int quantity;
+    private BigDecimal price;
 }
